@@ -1,13 +1,45 @@
-body {
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+
+*{
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+input[type="search"]{
+  outline: none;
+  border: none;
+  background-color: transparent;
+}
+
+button{
+  outline: none;
+  border: none;
+  background-color: transparent;
+}
+
+body {
+  background: #bebeb4;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body.dark {
+  background-color: #2f2f2f;
+}
+
+body.dark .header-title{
+  color: rgba(255,255,255, 0.75);
+}
+
+body.dark .search-input{
+  color: rgba(255,255,255, 0.75);
+  border-bottom: 1px solid rgba(255,255,255, 0.75) !important;
+}
+
+body.dark .sun,
+body.dark .moon{
+  filter: invert(1);
 }
