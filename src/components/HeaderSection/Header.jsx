@@ -19,6 +19,25 @@ const HeaderSection = () => {
   const moonMode = useRef();
   const sunMode = useRef();
 
+  const onSearch = (value) => {
+    setSearchValue(value);
+    const cardTitle = document.querySelectorAll(".card-title");
+    let searchData = searchValue.trim().toLowerCase();
+    if (searchData !== "") {
+      cardTitle.forEach((e) => {
+        if (e.textContent.toLowerCase().search(searchData) === -1) {
+          e.parentElement.classList.add("hide");
+        } else {
+          e.parentElement.classList.remove("hide");
+        }
+      });
+    } else {
+      cardTitle.forEach((e) => {
+        e.parentElement.classList.remove("hide");
+      });
+    }
+  };
+
   const onDarkMode = () => {
     if (moonMode.current.classList.contains("active")) {
       moonMode.current.classList.remove("active");
@@ -38,7 +57,7 @@ const HeaderSection = () => {
         className="search-input"
         value={searchValue}
         type="search"
-        onInput={(e) => setSearchValue(e.target.value)}
+        onInput={(e) => onSearch(e.target.value)}
         placeholder="what are you looking for?"
       />
       <ModeSection>
