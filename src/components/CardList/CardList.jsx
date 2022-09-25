@@ -3,14 +3,7 @@ import {
   CardSection,
   CardHeader,
   CardInner,
-  Cart,
-  CartHeader,
-  CartInner,
-  CartItem,
-  CartList,
-  CartTitle,
   Sort,
-  ButtonBack,
   Card,
   CardLists,
   ButtonSection,
@@ -20,53 +13,60 @@ import {
   DeleteButton,
   CardImg,
   CardTitle,
-  TotalSection,
   CardDescription,
   CardPrice,
   AddButton,
-  CartCount,
   LoadMore,
   CreateProducts,
-  TotalPrice,
-  CartSection,
-  CartItemDescription,
-  CartItemPrice,
-  CartItemTitle,
-  CartDeleteButton,
 } from "./style";
 import audi from "../../img/cards/audi.jpg";
 import iconCart from "../../img/icons/shopping-cart.png";
-import Data from "../data/Data";
+import PopupSection from "../Popup/PopupSection";
+import CartLogic from "../Cart/CartLogic";
+import { Context } from "../Context/Context";
+import { useHttp } from "../../hooks/http.hooks";
 
 const CardList = () => {
+  // eslint-disable-next-line
   const [sortValue, setSortValue] = useState("");
-  const [totalPrace, setTotalPrice] = useState(0);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState(1);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [counter, setCounter] = useState(0);
+  const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
   const [loadElements, setLoadELements] = useState(10);
   const [productsEnd, setProductsEnds] = useState(false);
 
-  const { dataInfo } = Data();
-
-  const cartRef = useRef();
+  const { request } = useHttp();
   const loadMoreRef = useRef();
 
-  useEffect(() => {
-    onLoadElements(loadElements);
-    // eslint-disable-next-line
-  }, []);
-
-  const onLoadElements = (loadElements) => {
-    const slicedElements = dataInfo.slice(0, loadElements);
+  const onProducts = (items) => {
+    const slicedElements = items.slice(0, loadElements);
     setLoadELements(loadElements + 9);
     setProducts(slicedElements);
   };
 
+  useEffect(() => {
+    request("http://localhost:3002/products", "GET")
+      .then(onProducts)
+      .catch((e) => new Error(e));
+    // eslint-disable-next-line
+  }, []);
+
   const LoadProducts = () => {
-    if (dataInfo.length === products.length) {
+    request("http://localhost:3002/products", "GET")
+      .then(LoadMoreProjects)
+      .catch((e) => new Error(e));
+  };
+
+  const LoadMoreProjects = (items) => {
+    if (products.length === items.length) {
       setProductsEnds(true);
       loadMoreRef.current.classList.add("end");
     } else {
-      const slicedElements = dataInfo.slice(loadElements - 9, loadElements);
+      const slicedElements = items.slice(loadElements - 9, loadElements);
       setLoadELements(loadElements + 9);
       setProducts([...products, ...slicedElements]);
     }
@@ -74,9 +74,7 @@ const CardList = () => {
 
   const SortProducts = (value) => {
     setSortValue(value);
-    if (value === "Popular") {
-      setProducts(products.sort().reverse());
-    } else if (value === "A-Z") {
+    if (value === "A-Z") {
       const sortedProducts = products.sort((a, b) =>
         a.title.localeCompare(b.title)
       );
@@ -86,22 +84,58 @@ const CardList = () => {
     }
   };
 
-  const onCart = () => {
-    if (cartRef.current.classList.contains("active")) {
-      cartRef.current.classList.remove("active");
-    } else {
-      cartRef.current.classList.add("active");
-    }
+  const addToCart = (target) => {
+    let card = target.parentElement,
+      cardTitle = card.querySelector(".card-title").textContent,
+      cardDescription = card.querySelector(".card-description").textContent,
+      cardPrice = card.querySelector(".card-price").textContent;
+
+    const newItem = {
+      id: +card.dataset.id,
+      title: cardTitle,
+      description: cardDescription,
+      price: +cardPrice.slice(0, 3),
+    };
+
+    cardPrice = +cardPrice.slice(0, 3);
+    setCounter((counter) => counter + 1);
+    setTotalPrice((totalPrice) => totalPrice + cardPrice);
+    setCart([
+      ...cart,
+      { title: cardTitle, description: cardDescription, price: cardPrice },
+    ]);
+    request("http://localhost:3002/cart", "POST", JSON.stringify(newItem));
   };
 
-  const closeCart = (target) => {
-    target.parentElement.parentElement.classList.remove("active");
-    cartRef.current.classList.remove("active");
-    if (target.parentElement.parentElement.classList.contains("cart-icon")) {
-      if (target.classList.contains("btn-back")) {
-        target.parentElement.parentElement.classList.remove("active");
-        cartRef.current.classList.remove("active");
-      }
+  const openPopup = (target) => {
+    let popup = document.querySelector(".pop-up"),
+      popupTitle = document.querySelector(".popup-title"),
+      inputTitle = document.querySelector(".input-title"),
+      inputDescription = document.querySelector(".input-description"),
+      inputPrice = document.querySelector(".input-price");
+
+    if (target.classList.contains("edit-button")) {
+      popup.classList.add("show");
+      let card = target.parentElement.parentElement,
+        cardTitle = card.querySelector(".card-title").textContent,
+        cardDescription = card.querySelector(".card-description").textContent,
+        cardPrice = card.querySelector(".card-price").textContent;
+      let index = cardPrice.indexOf("$");
+
+      popupTitle.textContent = "Edit card";
+      inputTitle.dataset.title = cardTitle;
+      inputDescription.dataset.description = cardDescription;
+      inputPrice.dataset.price = cardPrice;
+      setTitle(cardTitle);
+      setDescription(cardDescription);
+      cardPrice = +cardPrice.slice(0, index);
+      setPrice(cardPrice);
+    } else if (target.classList.contains("create-button")) {
+      popup.classList.add("show");
+      popupTitle.textContent = " Create a card of product";
+      setTitle("");
+      setDescription("");
+      setPrice(1);
     }
   };
 
@@ -114,84 +148,103 @@ const CardList = () => {
     target.classList.add("active");
   };
 
+  const deleteCard = (target) => {
+    const card = target.parentElement.parentElement;
+    const id = card.dataset.id;
+    request(`http://localhost:3002/products/${id}`, "DELETE");
+    card.style.display = "none";
+  };
+
   return (
-    <CardSection>
-      <CardInner>
-        <CardHeader>
-          <Sort onChange={(e) => SortProducts(e.target.value)}>
-            <option value="Popular">Popular</option>
-            <option value="A-Z">A to Z</option>
-            <option value="Z-A">Z to A</option>
-          </Sort>
-          <Cart className="cart-icon" ref={cartRef} onClick={onCart}>
-            <CartCount className="cart-count">0</CartCount>
-          </Cart>
-          <CartSection className="cart-section">
-            <CartHeader className="cart-header">
-              <ButtonBack
-                className="btn-back"
-                onClick={(e) => closeCart(e.target)}
-              />
-              <CartTitle>Your cart</CartTitle>
-            </CartHeader>
-            <CartInner className="cart-inner">
-              <CartList>
-                <CartItem>
-                  <CartItemTitle>Audi</CartItemTitle>
-                  <CartItemDescription>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  </CartItemDescription>
-                  <CartItemPrice>100$</CartItemPrice>
-                  <CartDeleteButton>X</CartDeleteButton>
-                </CartItem>
-              </CartList>
-              <TotalSection>
-                <TotalPrice>{totalPrace + "$"}</TotalPrice>
-              </TotalSection>
-            </CartInner>
-          </CartSection>
-        </CardHeader>
-        <CardLists>
-          {products.map(({ title, description, price, id }) => {
-            return (
-              <Card key={id}>
-                <ButtonSection
-                  className="open-more"
-                  onClick={(e) => openMore(e.target)}
-                >
-                  <EditButton className="edit-button">
-                    <IconEdit />
-                    Edit
-                  </EditButton>
-                  <DeleteButton className="delete-button">
-                    <IconDelete />
-                    Delete
-                  </DeleteButton>
-                </ButtonSection>
-                <CardImg src={audi} alt="photo" />
-                <CardTitle className="card-title">{title}</CardTitle>
-                <CardDescription className="card-description">
-                  {description}
-                </CardDescription>
-                <CardPrice>{price + "$"}</CardPrice>
-                <AddButton>
-                  <img className="cart" src={iconCart} alt="Cart Icon" />
-                  {"Add to cart"}
-                </AddButton>
-              </Card>
-            );
-          })}
-        </CardLists>
-        <LoadMore
-          ref={loadMoreRef}
-          disabled={productsEnd}
-          onClick={LoadProducts}
+    <>
+      <CardSection>
+        <CardInner>
+          <CardHeader>
+            <Sort onChange={(e) => SortProducts(e.target.value)}>
+              <option value="A-Z">A to Z</option>
+              <option value="Z-A">Z to A</option>
+            </Sort>
+            <Context.Provider
+              value={{
+                totalPrice,
+                setTotalPrice,
+                counter,
+                setCounter,
+                cart,
+                setCart,
+                products,
+              }}
+            >
+              <CartLogic cart={cart} setCart={setCart} />
+            </Context.Provider>
+          </CardHeader>
+          <CardLists>
+            {products.map(({ title, description, price, id }) => {
+              return (
+                <Card key={id} data-id={id} className="card">
+                  <ButtonSection
+                    className="open-more"
+                    onClick={(e) => openMore(e.target)}
+                  >
+                    <EditButton
+                      className="edit-button"
+                      onClick={(e) => openPopup(e.target)}
+                    >
+                      <IconEdit />
+                      Edit
+                    </EditButton>
+                    <DeleteButton
+                      className="delete-button"
+                      onClick={(e) => deleteCard(e.target)}
+                    >
+                      <IconDelete />
+                      Delete
+                    </DeleteButton>
+                  </ButtonSection>
+                  <CardImg src={audi} alt="photo" />
+                  <CardTitle className="card-title">{title}</CardTitle>
+                  <CardDescription className="card-description">
+                    {description}
+                  </CardDescription>
+                  <CardPrice className="card-price">{price + "$"}</CardPrice>
+                  <AddButton onClick={(e) => addToCart(e.target)}>
+                    <img className="cart" src={iconCart} alt="Cart Icon" />
+                    {"Add to cart"}
+                  </AddButton>
+                </Card>
+              );
+            })}
+          </CardLists>
+          <LoadMore
+            ref={loadMoreRef}
+            disabled={productsEnd}
+            onClick={LoadProducts}
+          >
+            Load More
+          </LoadMore>
+        </CardInner>
+        <CreateProducts
+          className="create-button"
+          onClick={(e) => openPopup(e.target)}
         >
-          Load More
-        </LoadMore>
-      </CardInner>
-      <CreateProducts className="a">Create Products</CreateProducts>
-    </CardSection>
+          Create Products
+        </CreateProducts>
+      </CardSection>
+      <Context.Provider
+        value={{
+          products,
+          setProducts,
+          title,
+          setTitle,
+          setDescription,
+          description,
+          price,
+          setPrice,
+        }}
+      >
+        <PopupSection />
+      </Context.Provider>
+    </>
   );
 };
 
