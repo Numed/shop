@@ -1,10 +1,14 @@
-const jsonServer = require('json-server');
-const server = jsonServer.create();
-const router = jsonServer.router('data.json');
-const middlewares = jsonServer.defaults();
-const port = process.env.PORT || 3000;
+const express = require("express");
+const path = require("path");
+const PORT = 3000;
 
-server.use(middlewares);
-server.use(router);
+const app = express();
 
-server.listen(port);
+app.use(express.static(__dirname));
+app.use(express.static(path.resolve(__dirname, "build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
+app.listen(PORT);

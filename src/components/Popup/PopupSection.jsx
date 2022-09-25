@@ -55,7 +55,7 @@ const PopupSection = () => {
       };
       setId((id) => id + 1);
       request(
-        "http://localhost:3002/products",
+        "https://shop-backen.herokuapp.com/products",
         "POST",
         JSON.stringify(newCard)
       ).then(closeAndUpdate);
@@ -72,7 +72,7 @@ const PopupSection = () => {
         price: +price,
       };
       request(
-        `http://localhost:3002/products/${id}`,
+        `https://shop-backen.herokuapp.com/products/${id}`,
         "PUT",
         JSON.stringify(updateCard)
       ).then(popupRef.current.classList.remove("show"));

@@ -35,7 +35,7 @@ const CartLogic = () => {
   const { request } = useHttp();
 
   useEffect(() => {
-    request("http://localhost:3002/cart", "GET")
+    request("https://shop-backen.herokuapp.com/cart", "GET")
       .then(onSetCart)
       .catch((e) => new Error(e));
     // eslint-disable-next-line
@@ -83,7 +83,10 @@ const CartLogic = () => {
     setTotalPrice((totalPrice) => totalPrice - cartPrice);
     const filterItem = cart.filter((item) => item.title !== cartTitle);
     setCart([...filterItem]);
-    request(`http://localhost:3002/cart/${cardSelected[0].id}`, "DELETE");
+    request(
+      `https://shop-backen.herokuapp.com/cart/${cardSelected[0].id}`,
+      "DELETE"
+    );
   };
 
   return (
