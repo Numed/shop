@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/shop/static/css/main.92083b42.css",
+    "main.js": "/shop/static/js/main.a9e61c46.js",
+    "static/media/audi.jpg": "/shop/static/media/audi.4cc4db54ad0eea28f58f.jpg",
+    "static/media/moon.svg": "/shop/static/media/moon.079afd6b7be60cb2b41628a99544c331.svg",
+    "static/media/sun.svg": "/shop/static/media/sun.6082bc6e4b3a504d954061775b892950.svg",
+    "index.html": "/shop/index.html",
+    "main.92083b42.css.map": "/shop/static/css/main.92083b42.css.map",
+    "main.a9e61c46.js.map": "/shop/static/js/main.a9e61c46.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.92083b42.css",
+    "static/js/main.a9e61c46.js"
+  ]
+}
