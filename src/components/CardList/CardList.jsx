@@ -49,14 +49,14 @@ const CardList = () => {
   };
 
   useEffect(() => {
-    request("http://localhost:3002/products", "GET")
+    request("https://shop-backen.herokuapp.com/products", "GET")
       .then(onProducts)
       .catch((e) => new Error(e));
     // eslint-disable-next-line
   }, []);
 
   const LoadProducts = () => {
-    request("http://localhost:3002/products", "GET")
+    request("https://shop-backen.herokuapp.com/products", "GET")
       .then(LoadMoreProjects)
       .catch((e) => new Error(e));
   };
@@ -104,7 +104,11 @@ const CardList = () => {
       ...cart,
       { title: cardTitle, description: cardDescription, price: cardPrice },
     ]);
-    request("http://localhost:3002/cart", "POST", JSON.stringify(newItem));
+    request(
+      "https://shop-backen.herokuapp.com/cart",
+      "POST",
+      JSON.stringify(newItem)
+    );
   };
 
   const openPopup = (target) => {
@@ -151,7 +155,7 @@ const CardList = () => {
   const deleteCard = (target) => {
     const card = target.parentElement.parentElement;
     const id = card.dataset.id;
-    request(`http://localhost:3002/products/${id}`, "DELETE");
+    request(`https://shop-backen.herokuapp.com/products/${id}`, "DELETE");
     card.style.display = "none";
   };
 
